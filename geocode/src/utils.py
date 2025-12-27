@@ -7,6 +7,12 @@ from constants import API_PATHS, APIS, BASE_URLS, BASE_CRS, STATES, SRID, PARAM_
 
 
 def check_state(state) -> str:
+    '''
+    Used to validate that the input state matches those in constants. This geocoder is built for only those states. Returns an upper case string.
+
+    Args:
+        state: the case insensitive two character US State abbreviation.
+    '''
     if state and isinstance(state, str):
         state_upper = state.upper()
         if state_upper in STATES:
@@ -18,9 +24,16 @@ def check_state(state) -> str:
         raise TypeError('The value of state must be a string and not empty')
 
 def get_state(state) -> dict:
+    '''
+    Used to get the base url of the API for the specified state. Returns a dictionary.
+
+    Args:
+        state: the case insensitive two character US State abbreviation.
+    '''
     state_upper = check_state(state)
-    url = [b for b in BASE_URLS if b.get('state') == state_upper][0]
-    return url
+    if state_upper:
+        url = [b for b in BASE_URLS if b.get('state') == state_upper][0]
+        return url
        
 def check_api(api) -> str:
     if api and isinstance(api, str):
