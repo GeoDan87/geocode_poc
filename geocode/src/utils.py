@@ -13,7 +13,7 @@ def check_state(state) -> str:
     Args:
         state: the case insensitive two character US State abbreviation.
     '''
-    if state and isinstance(state, str):
+    if state and isinstance(state, str) and len(state) == 2:
         state_upper = state.upper()
         if state_upper in STATES:
             return state_upper
@@ -101,16 +101,29 @@ def grid_xy(x, y):
         raise TypeError('x and y must be of type float')
 
 #Limit the extents to subset results to territory envelope
-def limit_extent():
-    searchExtent={
-                  "xmin": -13052769,
-                  "ymin": 3951172,
-                  "xmax": -13019630,
-                  "ymax": 3978490,
-                  "spatialReference": {
-                                        "wkid": 3395
-                                      }
-                 }
+def make_bounds(gdf) -> dict:
+    '''
+    Take a geodataframe and calculate the bounds of the envelope to use to limit the geocoding results, this is imprecise, but helpful. 
+    Structured based on ESRIs requirements. Output as a dict.
+
+    Args:
+    gdf: a geodataframe to use to create the envelope.
+    '''
+    if not gdf.empty and isinstance(gdf, gpd.GeoDataFrame):
+        bounds = gdf.envelope.bounds
+
+        if not bounds.empty:
+            bounds_dict = bounds.loc[0].to_dict()
+            bounds_dict.update({
+                                "spatialReference": {
+                                                     "wkid": SRID
+                                                    }
+                               })
+            return bounds_dict
+        else:
+            raise ValueError('The geographic envelope was not successfully generated!')
+    else:
+        raise TypeError('gdf must be a GeoDataFrame!')
 
 #Clip the results to the territory polygon
 def clip_results(in_geom, extent_geom):

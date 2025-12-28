@@ -60,6 +60,9 @@ class address:
                 setattr(self, v, json_response.get(k))
             self.convert_location()
             self.data = gpd.GeoDataFrame(self.data, crs = BASE_CRS)
+            #Determine if more logic is needed here and this should be a function in utils
+            self.clipped = gpd.clip(clip = self.data, mask = MASK, keep_geom_type = True)
+
        
 test = address(street_address ='78 Brookside Ave', city ='Chester', state = 'NY')
 test.validate_fields()
